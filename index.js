@@ -25,22 +25,30 @@ app.get('/', function(req, res, next) {
     res.sendFile(process.cwd() + '/views/index.html');
 });
 
-app.post('/api/shorturl', (req, res, next) => {
-      createShortUrl(req.body.url).then(shortUrl => {
-        // replit doesn't like exceptions. So I'm handling this
-        // error alternatively using a flag.
-        if (!shortUrl) return next(new Error('invalid url'));
-        res.json({ 
-          original_url : shortUrl.originalUrl, 
-          short_url : shortUrl.shortUrl,
-        });
-      }).catch(err => next(err));
+app.post('/api/shorturl', async (req, res, next) => {
+      try {
+          const shortUrl = await createShortUrl(req.body.url);
+  
+          // replit doesn't like exceptions. So I'm handling this
+          // error alternatively using a flag.
+          if (!shortUrl) return next(new Error('invalid url'));
+        
+          res.json({ 
+            original_url : shortUrl.originalUrl, 
+            short_url : shortUrl.shortUrl,
+          });
+      } catch(err) {
+          next(err);  
+      }
 });
 
-app.get('/api/shorturl/:shortUrlId', (req, res, next) => {
-    getOriginalUrl(req.params.shortUrlId).then(originalUrl => {
-      res.redirect(originalUrl);
-    }).catch(err => next(err));
+app.get('/api/shorturl/:shortUrlId', async (req, res, next) => {
+    try {
+        const originalUrl = await getOriginalUrl(req.params.shortUrlId);
+        res.redirect(originalUrl);
+    } catch(err) {
+        next(err);
+    }
 });
 
 app.use((err, req, res, next) => {
