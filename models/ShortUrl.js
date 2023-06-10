@@ -12,7 +12,7 @@ const ShortUrlSeq = mongoose.model('ShortUrlSeq', shortUrlSeqSchema);
 
 const shortUrlSchema = new mongoose.Schema({
     shortUrl: { //set by the pre save middleware
-        type: Number,
+        type: String,
         unique: true,
     },
     originalUrl: {
@@ -36,7 +36,7 @@ shortUrlSchema.pre('save', async function() {
             await shortUrlSeq.save();
         }
 
-        this.shortUrl = seq;
+        this.shortUrl = String(seq);
     });
 });
 

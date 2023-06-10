@@ -1,20 +1,27 @@
 const dns = require('dns');
 const ShortUrl = require('../models/ShortUrl');
 
-function validateUrl(url) {
+function validateUrl(pUrl) { 
     return new Promise((resolve, reject) => {
-        dns.lookup(url, (err, res) => { 
+        let url;
+        try {
+            url = new URL(pUrl);
+        } catch(err) {
+            return resolve(false);
+        }
+      
+        dns.lookup(url.host, (err, res) => { 
             if (err) return resolve(false);
             resolve(res);
         });
     });
 }
 
-async function createShortUrl(url) {
-    const res = await validateUrl(url);
+async function createShortUrl(pUrl) {
+    const res = await validateUrl(pUrl);
     if (!res) return res;
   
-    let shortUrl = new ShortUrl({ originalUrl: url });
+    let shortUrl = new ShortUrl({ originalUrl: pUrl });
     shortUrl = await shortUrl.save();
     return shortUrl;
 }
